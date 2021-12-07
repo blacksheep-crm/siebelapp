@@ -3,7 +3,9 @@ No-frills web app that uses JavaScript/jQuery to connect to the Siebel CRM inbou
 
 # Installation
 
-Copy index.html, siebelapp.js and siebelapp.css to webapps\ROOT\siebelapp in your AI tomcat
+Create a folder named siebelapp in webapps/ROOT in your AI tomcat
+
+Copy index.html, siebelapp.js and siebelapp.css to webapps/ROOT/siebelapp
 
 Grant access to EAILOVService / GetListOfValues in Business Service Access view
 
