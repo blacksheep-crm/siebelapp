@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport"
+        content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no">
+    <title>Give Siebel a REST</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+    <script src="siebelapp.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
+    <link type="text/css" rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/redmond/jquery-ui.css">
+    <link type="text/css" rel="stylesheet" href="siebelapp.css">
+</head>
+<body onload="javascript:LoadApp();">
+    <div id="appcontainer">
+        <div id="appmenu">
+            <div id="message">
+                Please login
+            </div>
+            <div id="buttons">
+                <button id="loginbtn">Login</button>
+                <button id="Account" style="display:none" class="tab">Accounts</button>
+                <button id="Contact" style="display:none" class="tab">Contacts</button>
+            </div>
+            <div id="search" style="display:none">
+                <input id="searchval" type="search" placeholder="Search">
+                <button id="searchbtn">Go</button>
+            </div>
+        </div>
+        <div id="appcontent">
+
+        </div>
+    </div>
+</body>
+</html>

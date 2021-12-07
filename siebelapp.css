@@ -1,0 +1,115 @@
+#appcontainer {
+    font-family: sans-serif;
+    font-size: 1.2em;
+}
+
+#appmenu {
+    position: fixed;
+    background: white;
+    z-index: 10;
+    width: 100vw;
+    top: 0;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+#appcontent {
+    top: 80px;
+    position: relative;
+}
+
+.record-container {
+    display: flex;
+    border-bottom: 1px solid grey;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    flex-wrap: wrap;
+}
+
+.record-container.active {
+    background: #c5dbec;
+}
+
+.field-container {
+    margin-right: 10px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.field-container:first-child {
+    font-weight: bold;
+    width: 100vw;
+}
+
+.field-container.empty{
+    display: none;
+}
+
+.field-label {
+    margin-right: 4px;
+}
+
+button.tab {
+    font-size: 1.1em;
+    border: none;
+    margin-right: 2px;
+    background: lightblue;
+}
+
+button.tab.active {
+    border: 1px solid black;
+    border-bottom: none;
+}
+
+input[type="search"] {
+    width: 80vw;
+    max-width: 290px;
+    font-size: 20px;
+    margin: 1px;
+}
+
+button#searchbtn {
+    background: lightblue;
+    border: none;
+    font-size: 1.1em;
+}
+
+.record-button-container {
+    width: 100vw;
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 10px;
+    padding-top: 4px;
+    padding-bottom: 2px;
+}
+
+.record-button-container button {
+    height: 30px;
+    font-size: 1em;
+    margin-right: 6px;
+}
+
+input.edit-input {
+    font-size: 20px;
+    margin-bottom: 2px;
+    width: 92vw;
+    max-width: 400px;
+}
+
+/*Conditional format example*/
+.field-container[bcrm-field='Account.Account Status'][bcrm-value='Active'] {
+    background: #672;
+    font-size: 16px;
+    padding-left: 4px;
+    padding-right: 4px;
+    line-height: 22px;
+    border-radius: 8px;
+    color: white;
+}
+
+.field-container.edit {
+    background: unset!important;
+    padding: unset!important;
+    color: unset!important;
+    font-size: unset!important;
+}
