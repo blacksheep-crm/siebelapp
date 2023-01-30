@@ -3,6 +3,10 @@ No-frills web app that uses JavaScript/jQuery to connect to the Siebel CRM inbou
 
 Author: Alexander Hansal
 
+# Version 2
+
+Refactored to use shoelace ( https://shoelace.style ) dark mode
+
 # Installation
 
 Create a folder named siebelapp in webapps/ROOT in your AI tomcat
@@ -15,7 +19,7 @@ Access app from https://your-ai:port/siebelapp
 
 # Demo
 
-See it in action: https://youtu.be/w7z4vI7ftDc?t=2517
+See it in action: coming soon
 
 # Customization
 
