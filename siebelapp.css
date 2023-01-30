@@ -1,115 +1,92 @@
-#appcontainer {
-    font-family: sans-serif;
-    font-size: 1.2em;
+*{
+	font-family: "Segoe UI", Roboto, Helvetica;
 }
-
+.spinner{
+    position: fixed;
+    top: 50%;
+    z-index: 100;
+    left: 42%;
+    display:none;
+}
 #appmenu {
     position: fixed;
-    background: white;
     z-index: 10;
-    width: 100vw;
-    top: 0;
-    padding-top: 4px;
-    padding-bottom: 4px;
+    background: #121212;
+    width: 97vw;
+    top: 0px;
+    left: 0px;
+    padding: 7px;
 }
-
 #appcontent {
-    top: 80px;
+    top: 112px;
     position: relative;
 }
-
-.record-container {
+.search-bar{
     display: flex;
-    border-bottom: 1px solid grey;
-    padding-top: 2px;
-    padding-bottom: 2px;
-    flex-wrap: wrap;
+    padding-top: 6px;
+    padding-bottom: 6px;
 }
-
-.record-container.active {
-    background: #c5dbec;
+.record-container{
+    width: 96vw;
+    margin-bottom: 2px;
 }
-
-.field-container {
-    margin-right: 10px;
-    display: flex;
-    flex-wrap: wrap;
+#loginbtn {
+    margin-top: 8px;
 }
-
-.field-container:first-child {
-    font-weight: bold;
-    width: 100vw;
-}
-
-.field-container.empty{
-    display: none;
-}
-
-.field-label {
-    margin-right: 4px;
-}
-
-button.tab {
-    font-size: 1.1em;
-    border: none;
-    margin-right: 2px;
-    background: lightblue;
-}
-
-button.tab.active {
-    border: 1px solid black;
-    border-bottom: none;
-}
-
-input[type="search"] {
-    width: 80vw;
-    max-width: 290px;
-    font-size: 20px;
-    margin: 1px;
-}
-
-button#searchbtn {
-    background: lightblue;
-    border: none;
-    font-size: 1.1em;
-}
-
 .record-button-container {
-    width: 100vw;
-    display: flex;
-    justify-content: flex-end;
-    padding-right: 10px;
-    padding-top: 4px;
-    padding-bottom: 2px;
+    margin-top: 10px;
+    width: 96vw;
 }
-
-.record-button-container button {
-    height: 30px;
-    font-size: 1em;
+.record-button-container sl-button {
     margin-right: 6px;
 }
-
-input.edit-input {
-    font-size: 20px;
-    margin-bottom: 2px;
-    width: 92vw;
-    max-width: 400px;
+.record-container::part(body) {
+    display:flex;
+    flex-wrap: wrap;
 }
-
-/*Conditional format example*/
-.field-container[bcrm-field='Account.Account Status'][bcrm-value='Active'] {
-    background: #672;
-    font-size: 16px;
-    padding-left: 4px;
-    padding-right: 4px;
-    line-height: 22px;
-    border-radius: 8px;
-    color: white;
+.record-container.active::part(body) {
+    background: rgb(100 149 237 / 70%);
 }
-
-.field-container.edit {
-    background: unset!important;
-    padding: unset!important;
-    color: unset!important;
-    font-size: unset!important;
+.field-container {
+    display: flex;
+    margin-right: 24px;
+    flex-wrap: nowrap;
+}
+.field-container:first-child {
+    font-size: 1.2em!important;
+    width: 100vw;
+}
+.field-container:first-child .field-label {
+    display: none!important;
+}
+.field-container.edit .field-label{
+    display:unset!important;
+}
+.record-container.active .field-container {
+    width: 96vw;
+}
+.field-label {
+    margin-right: 10px;
+    width: 26vw;
+    max-width: 140px;
+}
+.edit-select{
+    width: 213px;
+}
+.edit-input{
+    width: 211px;
+}
+.badge-container{
+    width:96vw;
+    padding-bottom: 6px;
+    font-size: 1.2em;
+}
+.record-container.edit .badge-container{
+    display: none;
+}
+.field-container.badge {
+    display: none!important;
+}
+.field-container.edit.badge{
+    display: flex!important;
 }

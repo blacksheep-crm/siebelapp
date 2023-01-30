@@ -2,9 +2,12 @@
 * This is a PoC for a no-frills web app that uses JavaScript/jQuery
 * to connect to the Siebel CRM inbound REST API
 * uses the /data and /service API
+* 
+* This version of siebelapp.js uses shoelace
+*
 * Feel free to improve and remember:
 * THIS IS AN EDUCATIONAL SAMPLE!!! DO NOT USE IN PRODUCTION!!!
-* (c) 2021-2022 Alexander Hansal, blacksheep IT consulting
+* (c) 2021-2023 Alexander Hansal, blacksheep IT consulting
 */
 
 /*DEPENDENCIES:
@@ -34,6 +37,12 @@ var BCRM_MODEL = {
                 label: "Status",  //label for UI display, could use RR inspection service, could be translated
                 edit: true,
                 lov_type: "ACCOUNT_STATUS",  //lov_type is used to fetch LOVs after successful login (async call)
+                badge: {
+                    map: {
+                        "Active":"success",
+                        "Inactive":"danger"
+                    }
+                }
             },
             "Primary Account City": {
                 label: "City"
@@ -82,6 +91,44 @@ var BCRM_MODEL = {
         },
         sortspec: "Last Update - SDQ:desc"
     },
+    "Lead": {
+        type: "data",
+        bo: "Opportunity",
+        bc: "Opportunity",
+        fields: {
+            "Name": {
+                edit: true
+            },
+            "Account": {},
+            "Primary Revenue Amount":{
+                label: "Revenue",
+                edit:true
+            },
+            "Primary Revenue Win Probability":{
+                label: "Prob %",
+                edit: true
+            },
+            "Primary Revenue Close Date":{
+                label: "Close Date",
+                edit:true
+            },
+            "Quality": {
+                label: "Quality",
+                edit: true,
+                lov_type: "LEAD_QUALITY",
+                badge:{
+                    map:{
+                        "1-Excellent":"success",
+                        "2-Very High":"success",
+                        "3-High":"primary",
+                        "4-Fair":"warning",
+                        "5-Poor":"danger"
+                    }
+                }
+            }
+        },
+        sortspec: "Primary Revenue Amount:desc"
+    },
     "Authorization": {
         type: "data",
         bo: "Contact",
@@ -102,7 +149,7 @@ var BCRM_MODEL = {
 
 //remove all records
 BCRMCleanUp = function () {
-    $("#appcontent").find("div").remove();
+    $("#appcontent").find("*").remove();
 };
 
 //beautify record container
@@ -118,13 +165,14 @@ BCRMBeautify = function (rc) {
 
 //clear all forms
 BCRMClearForms = function () {
-    $("input.edit-input").each(function (x) {
+    $(".edit-input,.edit-select").each(function (x) {
         var oval = $(this).parent().attr("bcrm-ovalue");
         $(this).parent().append("<span>" + oval + "</span>");
         $(this).remove();
     });
     $(".record-button-container").hide();
     $(".field-container.empty").hide();
+    $(".record-container.edit").removeClass("edit");
 };
 
 //Upsert record
@@ -176,19 +224,22 @@ BCRMShowData = function (obj, cleanup) {
         for (i in data.data.items) {
             var r = data.data.items[i];
             var fs = data.fields;
-            var rc = $("<div id='" + r.Id.replace(":", "-") + "' class='record-container'></div>");
-
+            //var rc = $("<div id='" + r.Id.replace(":", "-") + "' class='record-container'></div>");
+            var rc = $("<sl-card id='" + r.Id.replace(":", "-") + "' class='record-container'></sl-card>");
+            var badgec = $("<div class='badge-container'>");
+            rc.append(badgec);
             //record buttons
             var btc = $("<div class='record-button-container'></div>");
-            var ebtn = $("<button class='edit-button' style='display:none;'>Edit</button>");
-            var sbtn = $("<button class='save-button' style='display:none;' disabled>Save</button>");
-            var cbtn = $("<button class='cancel-button' style='display:none;'>Cancel</button>");
+            var ebtn = $("<sl-button size='small' pill class='edit-button' style='display:none;'>Edit</sl-button>");
+            var sbtn = $("<sl-button size='small' pill class='save-button' style='display:none;' disabled>Save</sl-button>");
+            var cbtn = $("<sl-button size='small' pill class='cancel-button' style='display:none;'>Cancel</sl-button>");
 
             //Edit button
             ebtn.on("click", function (e) {
                 //reset all forms
                 BCRMClearForms();
                 var rc = $(this).parent().parent();
+                rc.addClass("edit");
                 rc.find(".field-container").each(function (x) {
                     $(this).show();
                     var fld = $(this).attr("bcrm-field").split(".")[1];
@@ -196,22 +247,43 @@ BCRMShowData = function (obj, cleanup) {
                     var rc = $(this).parent();
                     if (fs[fld].edit) {
                         var oval = fv.text();
+                        var ihtml = "<sl-input type='text' class='edit-input' value='" + oval + "'></sl-input>";
                         fv.attr("bcrm-ovalue", oval);
                         fv.find("span").remove();
-                        fv.html("<input type='text' class='edit-input' value='" + oval + "'>");
+
 
                         //lov demo
                         //lovs should have been loaded to model via async service call
+
                         if (typeof (fs[fld].lov) !== "undefined") {
-                            fv.find("input").autocomplete({
-                                source: fs[fld].lov,
-                                minLength: 0
-                            });
+                            ihtml = "<sl-select class='edit-select' value='" + oval +"'>";
+                            for (var i = 0; i < fs[fld].lov.length; i++) {
+                                ihtml += "<sl-option value='" + fs[fld].lov[i] + "'>" + fs[fld].lov[i] + "</sl-option>";
+                            }
+                            ihtml += "</sl-select>";
                         }
 
-                        fv.find("input").on("keyup", function () {
+                        fv.html(ihtml);
+
+                        fv.find(".edit-input").on("keyup", function () {
                             BCRM_PENDING_CHANGES = false;
-                            rc.find("input.edit-input").each(function (x) {
+                            rc.find(".edit-input").each(function (x) {
+                                var oval = $(this).parent().attr("bcrm-ovalue");
+                                if ($(this).val() != oval) {
+                                    BCRM_PENDING_CHANGES = true;
+                                }
+                            });
+                            if (BCRM_PENDING_CHANGES) {
+                                rc.find(".save-button").removeAttr("disabled");
+                            }
+                            else {
+                                rc.find(".save-button").attr("disabled", "disabled");
+                            }
+                        });
+
+                        fv.find(".edit-select").on("sl-change", function () {
+                            BCRM_PENDING_CHANGES = false;
+                            rc.find(".edit-select").each(function (x) {
                                 var oval = $(this).parent().attr("bcrm-ovalue");
                                 if ($(this).val() != oval) {
                                     BCRM_PENDING_CHANGES = true;
@@ -258,7 +330,7 @@ BCRMShowData = function (obj, cleanup) {
                     "Id": row_id
                 };
                 var send = false;
-                rc.find("input.edit-input").each(function (x) {
+                rc.find(".edit-input,.edit-select").each(function (x) {
                     var oval = $(this).parent().attr("bcrm-ovalue");
                     var fc = $(this).parent().parent();
                     var obj = fc.attr("bcrm-field").split(".")[0];
@@ -270,10 +342,15 @@ BCRMShowData = function (obj, cleanup) {
                 });
                 if (send) {
                     var result = BCRMUpsert(BCRM_MODEL[obj], bdy);
-                    var color = "lightgreen";
+                    //var color = "lightgreen";
                     if (result.status != 200) {
-                        color = "coral";
-                        alert(result.data.ERROR);
+                        //color = "coral";
+                        //alert(result.data.ERROR);
+                        $("#save_error").find(".sv-err-msg").text(result.data.ERROR);
+                        $("#save_error")[0].open = true;
+                        setTimeout(function () {
+                            $("#save_error")[0].open = false;
+                        }, 5000);
                     }
                     else {
                         for (f in bdy) {
@@ -282,11 +359,12 @@ BCRMShowData = function (obj, cleanup) {
                             fc.find(".field-value").attr("bcrm-ovalue", bdy[f]);
                         }
                         rc.find(".cancel-button").text("Close");
+                        //rc.find(".save-button").css("background", color);
+                        $("#save_success")[0].open = true;
+                        setTimeout(function () {
+                            $("#save_success")[0].open = false;
+                        }, 2000);
                     }
-                    rc.find(".save-button").css("background", color);
-                    setTimeout(function () {
-                        rc.find(".save-button").css("background", "");
-                    }, 2000);
                 }
             });
 
@@ -298,10 +376,16 @@ BCRMShowData = function (obj, cleanup) {
             var fcount = 0;
             for (f in fs) {
                 var val = r[f];
-
+                //create badge
+                if (fs[f].badge){
+                    var bc = $("<sl-badge variant='" + fs[f].badge.map[val] +"' pill>" + val + "</sl-badge>");
+                    badgec.append(bc);
+                }
                 //create field container
                 var fc = $("<div class='field-container'></div>");
-
+                if (fs[f].badge){
+                    fc.addClass("badge");
+                }
                 //add object name.field name and value for conditional CSS
                 fc.attr("bcrm-field", obj + "." + f);
                 fc.attr("bcrm-value", val.replace(/\W/g, "").substring(0, 30));
@@ -344,6 +428,7 @@ BCRMShowData = function (obj, cleanup) {
                     $(this).addClass("active");
 
                     //show record buttons (edit only)
+                    $(this).find(".card__footer").show();
                     $(this).find(".record-button-container").show();
                     $(this).find(".edit-button").show();
                     $(this).find(".save-button").hide();
@@ -354,12 +439,15 @@ BCRMShowData = function (obj, cleanup) {
             });
 
             rc.append(btc);
+
             //beautify record container
             BCRMBeautify(rc);
 
             $("#appcontent").append(rc);
 
+
         }//end for each record
+
     }
     else {
         $("#message").text("No records");
@@ -368,11 +456,19 @@ BCRMShowData = function (obj, cleanup) {
 
 //body onload function
 LoadApp = function () {
+    $("#appcontainer").show();
+    $("#search").hide();
     //bind events
-    $("#loginbtn").on("click", function (e) {
-        BCRMGetCredentials("login");
+    const logindialog = document.querySelector('.dialog-login');
+    const login_btn = document.getElementById('loginbtn');
+    const ld_submit_btn = logindialog.querySelector('sl-button[slot="footer"]');
+    ld_submit_btn.addEventListener('click', () => {
+        logindialog.hide();
+        BCRMGetCredentials();
     });
-    $("button.tab").on("click", function (e) {
+    login_btn.addEventListener('click', () => logindialog.show());
+
+    $("sl-button.tab").on("click", function (e) {
         $("button.tab.active").removeClass("active");
         $(this).addClass("active");
         $("#message").text(sessionStorage.BCRM_SALUTATION);
@@ -412,10 +508,8 @@ BCRMSearch = function () {
 };
 
 //Query
-//only GET "data" (= query) is currently supported
-//TODO: support insert/delete
-//TODO: support business services
 BCRMQuery = function (opt) {
+    $(".spinner").show();
     var fs = opt.fields;
     var fa = [];
     for (f in fs) {
@@ -436,8 +530,6 @@ BCRMQuery = function (opt) {
     url += "&" + "PageSize=" + (opt.pagesize ? opt.pagesize : BCRM_MODEL.defaults.pagesize);
     url += "&" + "sortspec=" + (opt.sortspec ? opt.sortspec : BCRM_MODEL.defaults.sortspec);
 
-    //synchronous XHR
-    //TODO: support async/fetch etc
     var data = $.ajax({
         dataType: "json",
         url: url,
@@ -452,56 +544,39 @@ BCRMQuery = function (opt) {
     ret.status = data.status;
     ret.data = data.responseJSON;
     ret.fields = (opt.fields ? opt.fields : { "Id": {} });
+    $(".spinner").hide();
     return ret;
 };
 
 //Validate user
 BCRMGetCredentials = function (next) {
-    //TODO: make a bit prettier, maybe replace dialog with static HTML
-    var dlg = $("<div id='bcrm_cred_dlg' style='display:grid;'>");
-    var user = $("<input id='username' type='text' placeholder='User Name'>");
-    var pw = $("<input id='password' type='password' placeholder='Password'>");
-    dlg.append(user);
-    dlg.append(pw);
-    dlg.dialog({
-        title: "Enter Credentials",
-        height: 200,
-        buttons: {
-            Go: function (e, ui) {
-                var un = $(this).find("#username").val();
-                var pw = $(this).find("#password").val();
-                BCRM_BASIC_AUTH = "Basic " + btoa(un + ":" + pw);
-                $(this).dialog("destroy");
-                if (next == "login") {
-                    //look up the user in Siebel
-                    //using Contact BC, because Employee in Base Employee IO has name fields inactive
-                    BCRM_MODEL["Authorization"].searchspec = "[Login Name]='" + un + "'";
-                    var data = BCRMQuery(BCRM_MODEL["Authorization"]);
-                    if (data.status == 200) {
-                        sessionStorage.BCRM_SALUTATION = "Welcome " + data.data.items[0]["First Name"] + " " + data.data.items[0]["Last Name"];
-                        $("#message").text(sessionStorage.BCRM_SALUTATION);
-                        $("#loginbtn").hide();
-                        $("button.tab").show();
+    const logindialog = document.querySelector('.dialog-login');
+    const un = logindialog.querySelector('sl-input[type="text"]').value;
+    const pw = logindialog.querySelector('sl-input[type="password"]').value;
+    BCRM_BASIC_AUTH = "Basic " + btoa(un + ":" + pw);
+    BCRM_MODEL["Authorization"].searchspec = "[Login Name]='" + un + "'";
+    var data = BCRMQuery(BCRM_MODEL["Authorization"]);
+    if (data.status == 200) {
+        sessionStorage.BCRM_SALUTATION = "Welcome " + data.data.items[0]["First Name"] + " " + data.data.items[0]["Last Name"];
+        $("#message").text(sessionStorage.BCRM_SALUTATION);
+        $("#loginbtn").hide();
+        $("#login_msg").hide();
+        $("#login_error").hide();
+        $("sl-button.tab").show();
 
-                        //lazy load LOVs
-                        try {
-                            BCRMGetLOVs();
-                        }
-                        catch (e) {
-                            console.error("Could not retrieve LOVs", e.toString());
-                        }
-                    }
-                    else {
-                        $("#message").text("Incorrect user name or password!");
-                    }
-                }
-            },
-            Cancel: function (e, ui) {
-                $(this).dialog("destroy");
-            }
+        //lazy load LOVs
+        try {
+            BCRMGetLOVs();
         }
-    });
-};
+        catch (e) {
+            console.error("Could not retrieve LOVs", e.toString());
+        }
+    }
+    else {
+        $("#login_msg").hide();
+        $("#login_error")[0].open = true;
+    }
+}
 
 //Process the outputs of business service calls
 BCRMProcessOutputs = function (service, method, outputs) {
