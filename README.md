@@ -1,5 +1,5 @@
 # STRICTLY EDUCATIONAL!! USE AT YOUR OWN PERIL!!
-No-frills web app that uses JavaScript/jQuery to connect to the Siebel CRM inbound REST API
+No-frills web app that uses JavaScript/jQuery/shoelace to connect to the Siebel CRM inbound REST API
 
 Author: Alexander Hansal
 
