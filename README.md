@@ -7,6 +7,10 @@ Author: Alexander Hansal
 
 Refactored to use shoelace ( https://shoelace.style ) dark mode
 
+# Demo
+
+See it in action: https://youtu.be/KjwyVSjZXMw?t=249
+
 # Installation
 
 Create a folder named siebelapp in webapps/ROOT in your AI tomcat
@@ -16,10 +20,6 @@ Copy index.html, siebelapp.js and siebelapp.css to webapps/ROOT/siebelapp
 Grant access to EAILOVService / GetListOfValues in Business Service Access view
 
 Access app from https://your-ai:port/siebelapp
-
-# Demo
-
-See it in action: coming soon
 
 # Customization
 
